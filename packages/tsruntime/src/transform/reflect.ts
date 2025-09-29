@@ -347,7 +347,7 @@ export function getReflect(ctx: Ctx) {
     const symbol = type.getSymbol()!;
     const name = symbol.getName();
     ctx.checker.getPropertiesOfType(type) //setting declaredProperties
-    const properties = type.declaredProperties.filter(sym => sym.flags & ts.SymbolFlags.Property).map(serializePropertySymbol)
+    const properties: any = type.declaredProperties.filter(sym => sym.flags & ts.SymbolFlags.Property).map(serializePropertySymbol)
 
     const constructorType = ctx.checker.getTypeOfSymbolAtLocation(symbol, symbol.valueDeclaration!);
     const constructors = constructorType.getConstructSignatures().map(serializeConstructorSignature);
