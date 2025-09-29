@@ -1,4 +1,4 @@
-name: Semantic Release with Dist Commit
+name: Semantic Release with Dist Commit (Yarn)
 
 on:
   push:
@@ -10,23 +10,24 @@ jobs:
   release:
     runs-on: ubuntu-latest
     permissions:
-      contents: write   # needed for commit & push
+      contents: write   # needed to commit/push dist
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # semantic-release requires full history
+          fetch-depth: 0   # semantic-release needs full history
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
+          cache: yarn
 
       - name: Install deps
-        run: npm ci
+        run: yarn install --frozen-lockfile
 
       - name: Build tsruntime
-        run: npm run build --workspace=tsruntime
+        run: yarn workspace tsruntime build
 
       - name: Copy dist to root
         run: |
