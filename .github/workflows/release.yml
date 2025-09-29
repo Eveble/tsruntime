@@ -1,0 +1,49 @@
+name: Semantic Release with Dist Commit
+
+on:
+  push:
+    branches:
+      - eveble
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed for commit & push
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # semantic-release requires full history
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Build tsruntime
+        run: npm run build --workspace=tsruntime
+
+      - name: Copy dist to root
+        run: |
+          rm -rf dist
+          mkdir -p dist
+          cp -R packages/tsruntime/dist/* dist/
+          cp packages/tsruntime/package.json dist/
+
+      - name: Commit dist back to branch
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add dist
+          git commit -m "chore: update dist [skip ci]" || echo "No changes"
+          git push origin HEAD:eveble
+
+      - name: Run semantic-release
+        run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
