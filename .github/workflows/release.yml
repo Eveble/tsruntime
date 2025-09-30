@@ -3,7 +3,7 @@ name: Package branches
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - 'v*.*.*'  # e.g. v5.0.2
 
 jobs:
   package-branches:
@@ -13,22 +13,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # full history
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
+      - name: Install rimraf globally
+        run: npm install -g rimraf
+
       - name: Extract version from tag
         id: version
         run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
 
-      - name: Install rimraf globally
-        run: npm install -g rimraf
-
-      - name: Build package inside subfolder
+      - name: Create version branch and build
         run: |
+          git checkout -B $VERSION
           cd packages/tsruntime
           npm install --include=dev
           npm run build
@@ -40,12 +41,7 @@ jobs:
           cp packages/tsruntime/package-lock.json tmp_branch/ || true
           cp packages/tsruntime/README.md tmp_branch/ || true
           cp packages/tsruntime/LICENSE tmp_branch/ || true
-          cp packages/tsruntime/tsconfig.json tmp_branch/ || true
-
-      - name: Create version branch at root
-        run: |
-          git checkout -B $VERSION
-          # Clean root except .git
+          # Clean repo root except .git
           find . -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
           # Move prepared files to root
           mv tmp_branch/* .
@@ -58,9 +54,17 @@ jobs:
       - name: Update eveble branch
         run: |
           git checkout -B eveble
-          # Clean root except .git
+          cd packages/tsruntime
+          npm install --include=dev
+          npm run build
+          cd ../../
+          mkdir -p tmp_branch
+          cp -r packages/tsruntime/dist tmp_branch/
+          cp packages/tsruntime/package.json tmp_branch/
+          cp packages/tsruntime/package-lock.json tmp_branch/ || true
+          cp packages/tsruntime/README.md tmp_branch/ || true
+          cp packages/tsruntime/LICENSE tmp_branch/ || true
           find . -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
-          # Move prepared files to root
           mv tmp_branch/* .
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
