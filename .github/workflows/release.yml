@@ -55,6 +55,8 @@ jobs:
 
       - name: Update eveble branch
         run: |
+          # Go back to the original tag to get source code
+          git checkout tags/$VERSION
           git checkout -B eveble
           cd packages/tsruntime
           npm install --include=dev
@@ -74,4 +76,4 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
           git commit -m "chore: update eveble branch to $VERSION"
-          git push origin eveble --force
+          git push origin refs/heads/eveble:refs/heads/eveble --force
