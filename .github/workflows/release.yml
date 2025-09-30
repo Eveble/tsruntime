@@ -13,7 +13,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # full history
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -38,16 +38,18 @@ jobs:
           mkdir -p tmp_branch
           cp -r packages/tsruntime/dist tmp_branch/
           cp packages/tsruntime/package.json tmp_branch/
-          cp packages/tsruntime/package-lock.json tmp_branch/ || true
-          cp packages/tsruntime/README.md tmp_branch/ || true
-          cp packages/tsruntime/LICENSE tmp_branch/ || true
-          # Clean repo root except .git
-          find . -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
+          [ -f packages/tsruntime/package-lock.json ] && cp packages/tsruntime/package-lock.json tmp_branch/ || true
+          [ -f packages/tsruntime/yarn.lock ] && cp packages/tsruntime/yarn.lock tmp_branch/ || true
+          [ -f README.md ] && cp README.md tmp_branch/ || true
+          [ -f LICENSE ] && cp LICENSE tmp_branch/ || true
+          # Clean root except .git and tmp_branch
+          find . -mindepth 1 -maxdepth 1 ! -name '.git' ! -name 'tmp_branch' -exec rm -rf {} +
           # Move prepared files to root
-          mv tmp_branch/* .
+          mv tmp_branch/* tmp_branch/.* . 2>/dev/null || true
+          rmdir tmp_branch
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .
+          git add -A
           git commit -m "chore: prepare package for $VERSION"
           git push origin $VERSION --force
 
@@ -61,13 +63,15 @@ jobs:
           mkdir -p tmp_branch
           cp -r packages/tsruntime/dist tmp_branch/
           cp packages/tsruntime/package.json tmp_branch/
-          cp packages/tsruntime/package-lock.json tmp_branch/ || true
-          cp packages/tsruntime/README.md tmp_branch/ || true
-          cp packages/tsruntime/LICENSE tmp_branch/ || true
-          find . -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
-          mv tmp_branch/* .
+          [ -f packages/tsruntime/package-lock.json ] && cp packages/tsruntime/package-lock.json tmp_branch/ || true
+          [ -f packages/tsruntime/yarn.lock ] && cp packages/tsruntime/yarn.lock tmp_branch/ || true
+          [ -f README.md ] && cp README.md tmp_branch/ || true
+          [ -f LICENSE ] && cp LICENSE tmp_branch/ || true
+          find . -mindepth 1 -maxdepth 1 ! -name '.git' ! -name 'tmp_branch' -exec rm -rf {} +
+          mv tmp_branch/* tmp_branch/.* . 2>/dev/null || true
+          rmdir tmp_branch
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .
+          git add -A
           git commit -m "chore: update eveble branch to $VERSION"
           git push origin eveble --force
