@@ -26,14 +26,12 @@ jobs:
 
       - name: Prepare package folder
         run: |
-          # Copy package contents to temporary folder
           mkdir -p /tmp/pkg
+          # Copy all package files including tsconfig.json
           cp -r packages/tsruntime/* /tmp/pkg/
+          cp packages/tsruntime/tsconfig.json /tmp/pkg/
           shopt -s dotglob
           cp -r packages/tsruntime/.* /tmp/pkg/ || true
-
-      - name: Install rimraf globally
-        run: npm install -g rimraf
 
       - name: Create version branch
         run: |
@@ -43,10 +41,10 @@ jobs:
           # Move package to root
           mv /tmp/pkg/* .
           # Install dependencies including devDependencies
-          npm install
+          npm install --include=dev
           # Build the package
           npm run build
-          # Commit built package
+          # Commit only package.json, package-lock.json, dist/
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add package.json package-lock.json dist/
@@ -61,10 +59,10 @@ jobs:
           # Move package to root
           mv /tmp/pkg/* .
           # Install dependencies including devDependencies
-          npm install
+          npm install --include=dev
           # Build the package
           npm run build
-          # Commit built package
+          # Commit only package.json, package-lock.json, dist/
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add package.json package-lock.json dist/
