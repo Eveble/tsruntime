@@ -24,6 +24,9 @@ jobs:
         id: version
         run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
 
+      - name: Install rimraf globally
+        run: npm install -g rimraf
+
       - name: Build package inside subfolder
         run: |
           cd packages/tsruntime
