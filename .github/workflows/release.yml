@@ -32,6 +32,9 @@ jobs:
           shopt -s dotglob
           cp -r packages/tsruntime/.* /tmp/pkg/ || true
 
+      - name: Install rimraf globally
+        run: npm install -g rimraf
+
       - name: Create version branch
         run: |
           git checkout -b $VERSION
