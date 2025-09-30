@@ -1,0 +1,1 @@
+{"version":3,"file":"hasModifier.js","sourceRoot":"","sources":["../../src/runtime/hasModifier.ts"],"names":[],"mappings":";;;AAEO,IAAM,WAAW,GAAG,UAAC,IAA2B,EAAE,QAAuB;IAC9E,IAAI,QAAQ,KAAK,IAAI,CAAC,SAAS,EAAE,CAAC;QAChC,OAAO,IAAI,CAAC;IACd,CAAC;IACD,OAAO,CAAC,CAAC,CAAC,IAAI,CAAC,SAAS,GAAG,QAAQ,CAAC,CAAC;AACvC,CAAC,CAAA;AALY,QAAA,WAAW,eAKvB"}
