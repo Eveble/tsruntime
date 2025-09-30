@@ -1,0 +1,55 @@
+name: Create package branches
+
+on:
+  push:
+    tags:
+      - 'v*.*.*' # e.g. v1.2.3
+
+jobs:
+  package-branches:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
+      - name: Prepare package folder
+        run: |
+          # Create temporary folder with package contents
+          mkdir /tmp/pkg
+          cp -r packages/tsruntime/* /tmp/pkg/
+          cp -r packages/tsruntime/.* /tmp/pkg/ || true
+
+      - name: Create versioned branch
+        run: |
+          git checkout -b $VERSION
+          # Clean root except .git and .github
+          find . -mindepth 1 -maxdepth 1 ! -name '.git' ! -name '.github' -exec rm -rf {} +
+          mv /tmp/pkg/* .
+          mv /tmp/pkg/.* . || true
+          npm install
+          npm run build
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "chore: prepare package for $VERSION"
+          git push origin $VERSION --force
+
+      - name: Update eveble branch
+        run: |
+          git checkout -B eveble
+          # Clean root except .git and .github
+          find . -mindepth 1 -maxdepth 1 ! -name '.git' ! -name '.github' -exec rm -rf {} +
+          mv /tmp/pkg/* .
+          mv /tmp/pkg/.* . || true
+          npm install
+          npm run build
+          git add .
+          git commit -m "chore: update eveble branch to $VERSION"
+          git push origin eveble --force
